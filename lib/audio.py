@@ -8,7 +8,6 @@ import librosa
 import numpy as np
 import soundfile as sf
 import torch
-from config import config_args
 
 def load_audio(path, args):
     """
