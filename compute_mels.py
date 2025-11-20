@@ -20,7 +20,6 @@ def load_metadata(args):
     track_path = os.path.join(args.metadata_dir, "tracks.csv")
     tracks = pd.read_csv(track_path, index_col=0, header=[0,1])
 
-    # Only keep the tracks in the small subset
     tracks = tracks[tracks[("set", "subset")] == "small"]
 
     # Only use whichever two genres were passed in as a config
@@ -32,7 +31,6 @@ def load_metadata(args):
         "genre": tracks[("track", "genre_top")].values,
     })
 
-    # Check on this, might just be able to do it out of a helper method
     def make_audio_path(track_id):
         track_id_str = f"{track_id:06d}"  # Format to 6 digits as FMA does
         return os.path.join(args.dataset_dir, track_id_str[:3], track_id_str + ".mp3")
@@ -44,13 +42,12 @@ def load_metadata(args):
 def main():
     args = config_args.parse_args()
 
-    # Create directory if not already made to store Mel spectrograms
     os.makedirs(args.mel_dir, exist_ok=True)
 
     print("Loading FMA metadata")
     df = load_metadata(args)
     print(f"Found {len(df)} tracks in subset 'small' with genres "
-          f"{args.genre_A} and {args.genre_B}")
+          f"'{args.genre_A}' and '{args.genre_B}'")
 
     mel_paths = []
     masks = []
@@ -66,13 +63,10 @@ def main():
         mel_path = os.path.join(mel_subdir, track_id_str + ".npy")
 
         try:
-            # Load audio
-            y, sr = load_audio(audio_path)
+            y, sr = load_audio(audio_path, args)
 
-            # Convert to Mel Spectrogram
             S_in_db = audio_to_mel(y, args)
 
-            # Save as a .npy for processing
             np.save(mel_path, S_in_db)
 
             mel_paths.append(mel_path)
@@ -86,11 +80,9 @@ def main():
             mel_paths.append(None)
             masks.append(False)
 
-    # Add all paths and drop any errors
     df["mel_path"] = mel_paths
     df = df[masks]
 
-    # Save to csv so that we can use it later
     out_csv = os.path.join(args.metadata_dir, "mels.csv")
     df.to_csv(out_csv, index=False)
     print(f"Finished processing {len(df)} tracks")

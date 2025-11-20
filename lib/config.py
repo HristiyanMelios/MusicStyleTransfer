@@ -20,5 +20,5 @@ config_args.add_argument('--device', type=str, default="cuda", help="cuda or cpu
 config_args.add_argument('--seed', type=int, default=42)
 config_args.add_argument('--lr', type=float, default=1e-4, help="learning rate")
 config_args.add_argument('--num_steps', type=int, default=500, help="number of transfer iterations")
-config_args.add_argument('--genre_A', type=str, default="Classical")
-config_args.add_argument('--genre_B', type=str, default="Jazz")
+config_args.add_argument('--genre_A', type=str, default="Pop")
+config_args.add_argument('--genre_B', type=str, default="Rock")
