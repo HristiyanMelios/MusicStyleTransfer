@@ -20,12 +20,12 @@ class FeatureExtractors(nn.Module):
         self.vgg = vgg.to(device).eval()
 
         self.target_layers = {
-            "conv1_1": 1,
-            "conv2_1": 6,
-            "conv3_1": 11,
-            "conv4_1": 20,
-            "conv4_2": 21,
-            "conv5_1": 29,
+            "relu1_1": 1,
+            "relu2_1": 6,
+            "relu3_1": 11,
+            "relu4_1": 20,
+            "relu4_2": 22,  # Used for content loss
+            "relu5_1": 29,
         }
 
     def forward(self, x):
@@ -46,5 +46,8 @@ class FeatureExtractors(nn.Module):
         return features
 
 
-def gram_matrix(x):
-    return
+def gram_matrix(feature):
+    B, C, H, W = feature.shape
+    F = feature.view(B, C, H * W)
+    G = torch.bmm(F, F.transpose(1, 2))
+    return G / (C * H * W)

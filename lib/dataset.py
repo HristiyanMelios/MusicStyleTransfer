@@ -38,9 +38,9 @@ class CSVDataset(Dataset):
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
 
-        Spectrogram = np.load(row["mel_path"])
+        spectrogram = np.load(row["mel_path"])
 
-        S_norm = (Spectrogram + 80.0) / 80.0
+        S_norm = (spectrogram + 80.0) / 80.0
         S_norm = np.clip(S_norm, 0.0, 1.0)
         x = torch.from_numpy(S_norm).unsqueeze(0).float()
 
