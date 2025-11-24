@@ -6,22 +6,9 @@ import soundfile as sf
 
 from lib.config import config_args
 from lib.dataset import load_mel_metadata
-from lib.audio import mel_to_audio
+from lib.audio import mel_to_audio, mel_to_tensor, tensor_to_mel
 from lib.train import style_transfer
 
-
-def mel_to_tensor(spectrogram):
-    S_norm = (spectrogram + 80.0) / 80.0
-    S_norm = np.clip(S_norm, 0.0, 1.0)
-    # Unsqueeze twice to get the 4D channel we need for transfer
-    tensor = torch.from_numpy(S_norm).unsqueeze(0).unsqueeze(0).float()
-    return tensor
-
-
-def tensor_to_mel(tensor):
-    S_norm = tensor.squeeze(0).squeeze(0).cpu().numpy()
-    S_norm = S_norm * 80.0 - 80.0
-    return S_norm
 
 
 def main():

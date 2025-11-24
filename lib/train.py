@@ -80,7 +80,6 @@ def style_transfer(args, content_mel, style_mel, device):
                       + args.style_weight * style_loss
                       + args.tv_weight * tv_loss)
 
-        # Backprop so the weights get updated
         total_loss.backward()
         optimizer.step()
 

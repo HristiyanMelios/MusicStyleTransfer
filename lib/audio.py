@@ -3,10 +3,9 @@ This module holds the preprocessing steps for the audio dataset, such as convert
 Mel spectrograms and saving them onto the hard drive to avoid regeneration.
 """
 
-import os
 import librosa
 import numpy as np
-import soundfile as sf
+import torch
 
 
 def load_audio(path, args):
@@ -48,12 +47,12 @@ def audio_to_mel(y, args):
     return S_in_db
 
 
-def mel_to_audio(S_in_db, args, n_iter=32):
+def mel_to_audio(s_in_db, args, n_iter=32):
     """
     Takes a mel spectrogram (in dB) and converts it to an approximated audio
     waveform using the Griffin-Lim algorithm
     """
-    S = librosa.db_to_power(S_in_db)
+    S = librosa.db_to_power(s_in_db)
     y = librosa.feature.inverse.mel_to_audio(
         S,
         sr=args.sr,
@@ -64,10 +63,15 @@ def mel_to_audio(S_in_db, args, n_iter=32):
     return y
 
 
-# def save_audio(path, y, sr):
-#     """
-#     Saves the audio waveform as a .wav file to the specified path
-#     using soundfile, as librosa.output.save_wav was deprecated
-#     """
-#     os.makedirs(os.path.dirname(path), exist_ok=True)
-#     sf.write(path, y, sr)
+def mel_to_tensor(spectrogram):
+    S_norm = (spectrogram + 80.0) / 80.0
+    S_norm = np.clip(S_norm, 0.0, 1.0)
+    # Unsqueeze twice to get the 4D channel we need for transfer
+    tensor = torch.from_numpy(S_norm).unsqueeze(0).unsqueeze(0).float()
+    return tensor
+
+
+def tensor_to_mel(tensor):
+    S_norm = tensor.squeeze(0).squeeze(0).cpu().numpy()
+    S_norm = S_norm * 80.0 - 80.0
+    return S_norm

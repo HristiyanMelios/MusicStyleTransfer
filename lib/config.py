@@ -14,16 +14,26 @@ config_args.add_argument('--clip_duration', type=float, default=8.0, help="Lengt
 config_args.add_argument('--hop_size', type=int, default=256, help="Hop size")
 config_args.add_argument('--n_fft', type=int, default=1024, help="FFT size")
 
-#----------------------------------- Preprocessing Configs -----------------------------------#
-
 #----------------------------------- Training Configs -----------------------------------#
 config_args.add_argument('--device', type=str, default="cuda", help="Cuda or cpu")
 config_args.add_argument('--seed', type=int, default=42, help="Random seed for reproducability")
 config_args.add_argument('--lr', type=float, default=1e-3, help="Learning rate")
-config_args.add_argument('--num_steps', type=int, default=500, help="Number of transfer iterations")
 config_args.add_argument('--genre_A', type=str, default="Pop", help="Initial audio genre")
 config_args.add_argument('--genre_B', type=str, default="Rock", help="Transfer audio genre")
+
+#----------------------------------- CNN Configs -----------------------------------#
+config_args.add_argument('--num_steps', type=int, default=500, help="Number of transfer iterations")
 config_args.add_argument('--content_weight', type=float, default=1, help="Content weight")
 config_args.add_argument('--style_weight',type=float, default=1e5, help="Weight of style transfer")
 config_args.add_argument('--tv_weight', type=float, default=1e-6, help="Total variation regularization weight")
 config_args.add_argument('--print_steps', type=int, default=50, help="Print progress during training")
+
+#----------------------------------- CycleGAN Configs -----------------------------------#
+config_args.add_argument('--batch_size', type=int, default=8, help="Batch size")
+config_args.add_argument('--num_epochs', type=int, default=100, help="Number of epochs")
+config_args.add_argument('--g_lr', type=float, default=1e-4, help="Generator learning rate")
+config_args.add_argument('--d_lr', type=float, default=1e-4, help="Discriminator learning rate")
+config_args.add_argument('--cycle_weight', type=float, default=10.0, help="Cycle weight")
+config_args.add_argument('--identity_weight', type=float, default=5.0, help="Identity Loss weight")
+config_args.add_argument('--patch_time', type=int, default=256, help="Spectrogram patch time frames")
+config_args.add_argument('--gan_mode', type=str, default="lsgan", help="GAN mode (lsgan or vanilla)")

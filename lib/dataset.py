@@ -5,7 +5,6 @@
 
 """
 import os
-from typing import Any, Tuple, Dict, List
 import numpy as np
 import pandas as pd
 import torch
@@ -52,3 +51,46 @@ class CSVDataset(Dataset):
         track_id = int(row["track_id"])
 
         return x, y, track_id
+
+
+# This dataset is for the CycleGAN implementation
+class MelDomainDataset(Dataset):
+    def __init__(self, args, df, patch_time=None, transform=None):
+        self.args = args
+        self.df = df.reset_index(drop=True)
+        if patch_time is not None:
+            self.patch_time = patch_time
+        else:
+            self.patch_time = self.args.patch_time
+        # If transformations are going to be applied
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+
+        spectrogram = np.load(row["mel_path"])
+
+        S_norm = (spectrogram + 80.0) / 80.0
+        S_norm = np.clip(S_norm, 0.0, 1.0)
+
+        n_mels, T = S_norm.shape
+        pt = self.patch_time
+
+        if T > pt:
+            start = np.random.randint(0, T - pt + 1)
+            S_crop = S_norm[:, start:start + pt]
+        else:
+            pad_width = pt - T
+            S_crop = np.pad(S_norm, ((0, 0), (0, pad_width)), mode='constant', constant_values=0.0)
+
+        S_crop = 2.0 * S_crop - 1.0
+
+        x = torch.from_numpy(S_crop).unsqueeze(0).float()
+
+        if self.transform:
+            x = self.transform(x)
+
+        return x

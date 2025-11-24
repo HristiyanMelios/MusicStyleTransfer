@@ -18,7 +18,7 @@ def load_metadata(args):
     for us to use later
     """
     track_path = os.path.join(args.metadata_dir, "tracks.csv")
-    tracks = pd.read_csv(track_path, index_col=0, header=[0,1])
+    tracks = pd.read_csv(track_path, index_col=0, header=[0, 1])
 
     tracks = tracks[tracks[("set", "subset")] == "small"]
 
