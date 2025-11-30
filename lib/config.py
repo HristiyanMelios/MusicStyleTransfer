@@ -15,7 +15,7 @@ config_args.add_argument('--hop_size', type=int, default=256, help="Hop size")
 config_args.add_argument('--n_fft', type=int, default=1024, help="FFT size")
 
 #----------------------------------- Training Configs -----------------------------------#
-config_args.add_argument('--device', type=str, default="cuda", help="Cuda or cpu")
+config_args.add_argument('--device_name', type=str, default="0", help="GPU name")
 config_args.add_argument('--seed', type=int, default=42, help="Random seed for reproducability")
 config_args.add_argument('--lr', type=float, default=1e-3, help="Learning rate")
 config_args.add_argument('--genre_A', type=str, default="Pop", help="Initial audio genre")
@@ -29,11 +29,10 @@ config_args.add_argument('--tv_weight', type=float, default=1e-6, help="Total va
 config_args.add_argument('--print_steps', type=int, default=50, help="Print progress during training")
 
 #----------------------------------- CycleGAN Configs -----------------------------------#
-config_args.add_argument('--batch_size', type=int, default=8, help="Batch size")
-config_args.add_argument('--num_epochs', type=int, default=100, help="Number of epochs")
+config_args.add_argument('--batch_size', type=int, default=16, help="Batch size")
+config_args.add_argument('--num_epochs', type=int, default=50, help="Number of epochs")
 config_args.add_argument('--g_lr', type=float, default=1e-4, help="Generator learning rate")
 config_args.add_argument('--d_lr', type=float, default=1e-4, help="Discriminator learning rate")
 config_args.add_argument('--cycle_weight', type=float, default=10.0, help="Cycle weight")
 config_args.add_argument('--identity_weight', type=float, default=5.0, help="Identity Loss weight")
 config_args.add_argument('--patch_time', type=int, default=256, help="Spectrogram patch time frames")
-config_args.add_argument('--gan_mode', type=str, default="lsgan", help="GAN mode (lsgan or vanilla)")

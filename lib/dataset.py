@@ -4,17 +4,10 @@
     Each row in the DataFrame contains track_id, genre, audio_path, and mel_path.
 
 """
-import os
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-
-
-def load_mel_metadata(args):
-    csv_path = os.path.join(args.metadata_dir, "mels.csv")
-    df = pd.read_csv(csv_path)
-    return df
 
 
 class CSVDataset(Dataset):
@@ -55,15 +48,10 @@ class CSVDataset(Dataset):
 
 # This dataset is for the CycleGAN implementation
 class MelDomainDataset(Dataset):
-    def __init__(self, args, df, patch_time=None, transform=None):
+    def __init__(self, args, df):
         self.args = args
         self.df = df.reset_index(drop=True)
-        if patch_time is not None:
-            self.patch_time = patch_time
-        else:
-            self.patch_time = self.args.patch_time
-        # If transformations are going to be applied
-        self.transform = transform
+        self.patch_time = self.args.patch_time
 
     def __len__(self):
         return len(self.df)
@@ -89,8 +77,5 @@ class MelDomainDataset(Dataset):
         S_crop = 2.0 * S_crop - 1.0
 
         x = torch.from_numpy(S_crop).unsqueeze(0).float()
-
-        if self.transform:
-            x = self.transform(x)
 
         return x

@@ -65,13 +65,13 @@ class ConvBlock(nn.Module):
 class Down(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.pool = nn.MaxPool2d(2, 2)
-        self.convBlock = ConvBlock(in_channels, out_channels)
+        self.maxpool = nn.Sequential(
+            nn.MaxPool2d(2, 2),
+            ConvBlock(in_channels, out_channels),
+        )
 
     def forward(self, x):
-        x = self.pool(x)
-        x = self.convBlock(x)
-        return x
+        return self.maxpool(x)
 
 
 class Up(nn.Module):
@@ -112,8 +112,8 @@ class Generator(nn.Module):
     def __init__(self, in_channels=1, out_channels=1, base_channels=64):
         super().__init__()
 
-        # Encoder
         self.inConv = ConvBlock(in_channels, base_channels)
+        # Encoder
         self.down1 = Down(base_channels, base_channels * 2)
         self.down2 = Down(base_channels * 2, base_channels * 4)
         self.down3 = Down(base_channels * 4, base_channels * 8)
@@ -125,8 +125,11 @@ class Generator(nn.Module):
         self.up3 = Up(base_channels * 4, base_channels * 2)
         self.up4 = Up(base_channels * 2, base_channels)
 
-        self.outConv = OutConv(base_channels, out_channels)
-        self.tanh = nn.Tanh()
+        # Bottleneck convolution
+        self.out = nn.Sequential(
+            OutConv(base_channels, out_channels),
+            nn.Tanh()
+        )
 
     def forward(self, x):
         x1 = self.inConv(x)
@@ -140,8 +143,7 @@ class Generator(nn.Module):
         u3 = self.up3(u2, x2)
         u4 = self.up4(u3, x1)
 
-        out = self.outConv(u4)  # Check
-        out = self.tanh(out)
+        out = self.out(u4)
         return out
 
 
@@ -217,9 +219,8 @@ class Discriminator(nn.Module):
         return self.model(x)
 
 
-# Helper block
 def gram_matrix(feature):
     B, C, H, W = feature.shape
     F = feature.view(B, C, H * W)
     G = torch.bmm(F, F.transpose(1, 2))
-    return G / (C * H * W)
+    return G / (C * H * W)  # normalize before returning

@@ -1,11 +1,11 @@
 import os
 
 import numpy as np
+import pandas as pd
 import torch
 import soundfile as sf
 
 from lib.config import config_args
-from lib.dataset import load_mel_metadata
 from lib.audio import mel_to_audio, mel_to_tensor, tensor_to_mel
 from lib.train import style_transfer
 
@@ -14,7 +14,8 @@ from lib.train import style_transfer
 def main():
     # Setting device and seed
     args = config_args.parse_args()
-    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device_name
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed(args.seed)
@@ -29,7 +30,8 @@ def main():
     print(f"Using device: {device}")
 
     # Load dataframe
-    df = load_mel_metadata(args)
+    csv_path = os.path.join(args.metadata_dir, "mels.csv")
+    df = pd.read_csv(csv_path)
 
     df_A = df[df["genre"] == args.genre_A].reset_index(drop=True)
     df_B = df[df["genre"] == args.genre_B].reset_index(drop=True)
@@ -70,6 +72,11 @@ def main():
     np.save(style_mel_path, style_mel)
     np.save(generated_mel_path, tensor_to_mel(generated_tensor))
 
+    print(f"Generated mel files at {mel_output_dir}:"
+          f"\ncontent_{content_id:06d}.npy"
+          f"\nstyle_{style_id:06d}.npy"
+          f"\ngenerated_{content_id:06d}.npy")
+
     # Audio conversion and saving
     content_audio = mel_to_audio(content_mel, args)
     style_audio = mel_to_audio(style_mel, args)
@@ -84,10 +91,10 @@ def main():
     sf.write(style_wav_path, style_audio, args.sr)
     sf.write(generated_wav_path, generated_audio, args.sr)
 
-    print(f"Generated audio files:"
-          f"\n{content_wav_path}"
-          f"\n{style_wav_path}"
-          f"\n{generated_wav_path}")
+    print(f"Generated audio files at {audio_output_dir}:"
+          f"\ncontent_{content_id:06d}.wav"
+          f"\nstyle_{style_id:06d}.wav"
+          f"\ngenerated_{content_id:06d}.wav")
 
     print("Finished transfer.")
 

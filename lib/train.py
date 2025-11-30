@@ -4,16 +4,18 @@ import torch.nn as nn
 from lib.model import FeatureExtractors, gram_matrix
 
 
-def get_content_loss(F_gen, F_content):
-    return nn.functional.mse_loss(F_gen, F_content)
+def get_content_loss(gen_feature, content_feature):
+    return nn.functional.mse_loss(gen_feature, content_feature)
 
 
 def get_style_loss(gen_features, style_features, style_layers,
                    layer_weights):
     loss = 0.0
     for name in style_layers:
-        G_gen = gram_matrix(gen_features[name])
-        G_style = gram_matrix(style_features[name])
+        gen_feature = gen_features[name]
+        style_feature = style_features[name]
+        G_gen = gram_matrix(gen_feature)
+        G_style = gram_matrix(style_feature)
         loss += layer_weights[name] * nn.functional.mse_loss(G_gen,
                                                              G_style)
     return loss

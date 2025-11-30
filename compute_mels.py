@@ -21,8 +21,6 @@ def load_metadata(args):
     tracks = pd.read_csv(track_path, index_col=0, header=[0, 1])
 
     tracks = tracks[tracks[("set", "subset")] == "small"]
-
-    # Only use whichever two genres were passed in as a config
     mask = tracks[("track", "genre_top")].isin([args.genre_A, args.genre_B])
     tracks = tracks[mask]
 
@@ -32,7 +30,7 @@ def load_metadata(args):
     })
 
     def make_audio_path(track_id):
-        track_id_str = f"{track_id:06d}"  # Format to 6 digits as FMA does
+        track_id_str = f"{track_id:06d}"  # Copied FMA formatting
         return os.path.join(args.dataset_dir, track_id_str[:3], track_id_str + ".mp3")
 
     df["audio_path"] = df["track_id"].apply(make_audio_path)
@@ -49,15 +47,13 @@ def main():
     print(f"Found {len(df)} tracks in subset 'small' with genres "
           f"'{args.genre_A}' and '{args.genre_B}'")
 
-    mel_paths = []
-    masks = []
+    mel_paths, masks = [], []
 
     for idx, row in df.iterrows():
         track_id = row["track_id"]
         audio_path = row["audio_path"]
         track_id_str = f"{track_id:06d}"
 
-        # Follow FMA folder structure
         mel_subdir = os.path.join(args.mel_dir, track_id_str[:3])
         os.makedirs(mel_subdir, exist_ok=True)
         mel_path = os.path.join(mel_subdir, track_id_str + ".npy")
@@ -86,7 +82,6 @@ def main():
     out_csv = os.path.join(args.metadata_dir, "mels.csv")
     df.to_csv(out_csv, index=False)
     print(f"Finished processing {len(df)} tracks")
-    print(f"Saved metadata to: {out_csv}")
 
 
 if __name__ == "__main__":
