@@ -62,6 +62,9 @@ def cnn_plots(args):
         plot_mel(generated_mel, f"Generated {content_id}", generated_plot)
 
         # Numerical difference
+        diff_mel = content_mel - generated_mel
+        diff_plot = os.path.join(out_dir, f"diff_{content_id}.png")
+        plot_mel(diff_mel, f"Difference {content_id}", diff_plot, vmin=-10, vmax=0)
         diff_cg = np.mean(np.abs(content_mel - generated_mel))
         diff_sg = np.mean(np.abs(style_mel - generated_mel))
         print(f"Mean | content - generated |: {diff_cg:.4f} dB")
@@ -115,7 +118,7 @@ def cyclegan_plots(args):
         # Plot the difference since it's very hard to notice
         diff_mel = original_mel - generated_mel
         diff_plot = os.path.join(out_dir, f"diff_{direction}_{track_id}.png")
-        plot_mel(diff_mel, f"Difference {direction}_{track_id}", diff_plot, vmin=-5, vmax=5)
+        plot_mel(diff_mel, f"Difference {direction}_{track_id}", diff_plot, vmin=-10, vmax=0)
 
         # Numerical difference
         diff = np.mean(np.abs(original_mel - generated_mel))
